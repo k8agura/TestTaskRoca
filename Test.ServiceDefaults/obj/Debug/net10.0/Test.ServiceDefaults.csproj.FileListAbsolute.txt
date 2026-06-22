@@ -1,0 +1,12 @@
+C:\Users\User\source\repos\Test\Test.ServiceDefaults\bin\Debug\net10.0\Test.ServiceDefaults.deps.json
+C:\Users\User\source\repos\Test\Test.ServiceDefaults\bin\Debug\net10.0\Test.ServiceDefaults.dll
+C:\Users\User\source\repos\Test\Test.ServiceDefaults\bin\Debug\net10.0\Test.ServiceDefaults.pdb
+C:\Users\User\source\repos\Test\Test.ServiceDefaults\obj\Debug\net10.0\Test.ServiceDefaults.csproj.AssemblyReference.cache
+C:\Users\User\source\repos\Test\Test.ServiceDefaults\obj\Debug\net10.0\Test.ServiceDefaults.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\User\source\repos\Test\Test.ServiceDefaults\obj\Debug\net10.0\Test.ServiceDefaults.AssemblyInfoInputs.cache
+C:\Users\User\source\repos\Test\Test.ServiceDefaults\obj\Debug\net10.0\Test.ServiceDefaults.AssemblyInfo.cs
+C:\Users\User\source\repos\Test\Test.ServiceDefaults\obj\Debug\net10.0\Test.ServiceDefaults.csproj.CoreCompileInputs.cache
+C:\Users\User\source\repos\Test\Test.ServiceDefaults\obj\Debug\net10.0\Test.ServiceDefaults.dll
+C:\Users\User\source\repos\Test\Test.ServiceDefaults\obj\Debug\net10.0\refint\Test.ServiceDefaults.dll
+C:\Users\User\source\repos\Test\Test.ServiceDefaults\obj\Debug\net10.0\Test.ServiceDefaults.pdb
+C:\Users\User\source\repos\Test\Test.ServiceDefaults\obj\Debug\net10.0\ref\Test.ServiceDefaults.dll

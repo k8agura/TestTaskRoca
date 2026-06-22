@@ -1,0 +1,40 @@
+@ApiService_HostAddress = http://localhost:5545
+@employeeNumber = EMP-001
+
+GET {{ApiService_HostAddress}}/api/certificate-types
+Accept: application/json
+
+###
+
+POST {{ApiService_HostAddress}}/api/requests/
+Content-Type: application/json
+
+{
+  "табельныйЌомер": "{{employeeNumber}}",
+  "фио—отрудника": "»ван ѕетров",
+  "тип—правки": "TwoNdfl",
+  "количествоЁкземпл€ров": 2,
+  "причина": "ƒл€ визы",
+  "названиеѕроизвольной—правки": null
+}
+
+###
+
+GET {{ApiService_HostAddress}}/api/requests/employee/{{employeeNumber}}
+Accept: application/json
+
+###
+
+GET {{ApiService_HostAddress}}/api/accounting/requests
+Accept: application/json
+
+###
+
+PATCH {{ApiService_HostAddress}}/api/accounting/requests/00000000-0000-0000-0000-000000000000/status
+Content-Type: application/json
+
+{
+  "статус": "InProgress",
+  "кто»зменил": "buh-01",
+  "комментарий": "ѕрин€то в работу"
+}
