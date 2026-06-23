@@ -275,6 +275,39 @@
             border: 1px solid rgba(8, 145, 178, 0.12);
         }
 
+        .button-sm {
+            padding: 9px 14px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .button-progress {
+            background: rgba(8, 145, 178, 0.14);
+            color: var(--teal);
+            border: 1px solid rgba(8, 145, 178, 0.24);
+        }
+
+        .button-done {
+            background: rgba(47, 158, 143, 0.16);
+            color: var(--primary-dark);
+            border: 1px solid rgba(47, 158, 143, 0.28);
+        }
+
+        .button-reject {
+            background: rgba(217, 83, 79, 0.12);
+            color: var(--danger);
+            border: 1px solid rgba(217, 83, 79, 0.24);
+        }
+
+        .status-final {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .status-editor .comment-input {
+            margin-top: 2px;
+        }
+
         .status-strip {
             display: flex;
             flex-wrap: wrap;
@@ -373,7 +406,7 @@
 
         .queue-controls {
             display: grid;
-            grid-template-columns: 1fr auto;
+            grid-template-columns: 1.4fr 1fr auto;
             gap: 12px;
             align-items: end;
             margin-bottom: 18px;
@@ -396,9 +429,109 @@
             background: rgba(255,255,255,0.46);
         }
 
+        .role-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: linear-gradient(160deg, rgba(13, 148, 136, 0.22), rgba(8, 145, 178, 0.28)), rgba(11, 48, 47, 0.45);
+            backdrop-filter: blur(8px);
+        }
+
+        .role-overlay.hidden {
+            display: none;
+        }
+
+        .role-card {
+            width: min(720px, 100%);
+            background: var(--surface-strong);
+            border-radius: 28px;
+            box-shadow: var(--shadow);
+            padding: 36px;
+            text-align: center;
+            animation: rise 0.4s ease both;
+        }
+
+        .role-card h2 {
+            margin: 8px 0 6px;
+            font-size: 30px;
+            letter-spacing: -0.02em;
+        }
+
+        .role-card p {
+            margin: 0 auto 26px;
+            max-width: 460px;
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        .role-options {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .role-option {
+            display: grid;
+            gap: 10px;
+            justify-items: center;
+            padding: 26px 20px;
+            border-radius: 22px;
+            border: 1px solid var(--line);
+            background: rgba(255,255,255,0.7);
+            cursor: pointer;
+            text-align: center;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+
+        .role-option:hover {
+            transform: translateY(-3px);
+            border-color: rgba(13, 148, 136, 0.4);
+            box-shadow: 0 18px 40px rgba(13, 90, 86, 0.16);
+        }
+
+        .role-option .role-emoji {
+            font-size: 38px;
+            line-height: 1;
+        }
+
+        .role-option .role-name {
+            font-size: 19px;
+            font-weight: 700;
+        }
+
+        .role-option .role-desc {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .role-switch {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 16px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .role-switch strong {
+            color: var(--text);
+        }
+
+        [data-role-view] {
+            display: none;
+        }
+
         @media (max-width: 980px) {
             .hero-inner,
             .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .role-options {
                 grid-template-columns: 1fr;
             }
 
@@ -411,16 +544,40 @@
     </style>
 </head>
 <body>
+    <div class="role-overlay" id="roleOverlay">
+        <div class="role-card">
+            <span class="eyebrow">Справки без очередей</span>
+            <h2>Кто вы сегодня?</h2>
+            <p>Выберите роль — интерфейс подстроится. Сотрудник подаёт заявки, бухгалтер ведёт очередь. Роль можно сменить в любой момент.</p>
+            <div class="role-options">
+                <button class="role-option" type="button" data-role="employee">
+                    <span class="role-emoji">🧑‍💼</span>
+                    <span class="role-name">Сотрудник</span>
+                    <span class="role-desc">Подать заявку и следить за её статусом</span>
+                </button>
+                <button class="role-option" type="button" data-role="accountant">
+                    <span class="role-emoji">📋</span>
+                    <span class="role-name">Бухгалтер</span>
+                    <span class="role-desc">Обрабатывать очередь и менять статусы</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <main class="shell">
         <section class="hero">
             <div class="hero-inner">
                 <div>
-                    <span class="eyebrow">Внутренний кадровый сервис</span>
+                    <span class="eyebrow" id="roleBadge">Внутренний кадровый сервис</span>
                     <h1>Справки без<br>живой очереди</h1>
                     <p>
                         Оформляйте запросы на бухгалтерские справки из одного окна: сотрудник подаёт заявку,
                         бухгалтер видит очередь, а история статусов не теряется по дороге.
                     </p>
+                    <div class="role-switch">
+                        Вы вошли как <strong id="roleName">—</strong>
+                        <button class="button-secondary" type="button" id="changeRole">Сменить роль</button>
+                    </div>
                 </div>
                 <div class="stats">
                     <div class="stat">
@@ -444,7 +601,7 @@
         </section>
 
         <section class="grid">
-            <article class="panel">
+            <article class="panel" data-role-view="employee">
                 <div class="panel-header">
                     <div>
                         <h2 class="panel-title">Новая заявка</h2>
@@ -490,7 +647,7 @@
                 </div>
             </article>
 
-            <article class="panel">
+            <article class="panel" data-role-view="employee">
                 <div class="panel-header">
                     <div>
                         <h2 class="panel-title">Мои заявки</h2>
@@ -506,7 +663,7 @@
                 </div>
             </article>
 
-            <article class="panel" style="grid-column: 1 / -1;">
+            <article class="panel" data-role-view="accountant" style="grid-column: 1 / -1;">
                 <div class="panel-header">
                     <div>
                         <h2 class="panel-title">Очередь бухгалтерии</h2>
@@ -515,12 +672,16 @@
                 </div>
                 <div class="panel-body">
                     <div class="status-strip">
-                        <span class="chip">Created: новая</span>
-                        <span class="chip">InProgress: в работе</span>
-                        <span class="chip">Completed: готова</span>
-                        <span class="chip">Rejected: отклонена</span>
+                        <span class="chip">🟦 Новая</span>
+                        <span class="chip">🟡 В работе</span>
+                        <span class="chip">🟢 Готова</span>
+                        <span class="chip">🔴 Отклонена</span>
                     </div>
                     <div class="queue-controls">
+                        <label>
+                            Поиск по сотруднику
+                            <input id="queueSearch" placeholder="Табельный номер или ФИО">
+                        </label>
                         <label>
                             Фильтр по статусу
                             <select id="statusFilter">
@@ -531,7 +692,7 @@
                                 <option value="Rejected">Отклонённые</option>
                             </select>
                         </label>
-                        <button class="button-secondary" id="reloadQueue" type="button">Обновить очередь</button>
+                        <button class="button-secondary" id="reloadQueue" type="button">Обновить</button>
                     </div>
                     <div id="queueNotice" class="notice"></div>
                     <div id="accountingQueue" class="list"></div>
@@ -554,14 +715,55 @@
         const accountingQueue = document.getElementById('accountingQueue');
         const queueNotice = document.getElementById('queueNotice');
         const statusFilter = document.getElementById('statusFilter');
+        const queueSearch = document.getElementById('queueSearch');
+
+        const roleOverlay = document.getElementById('roleOverlay');
+        const roleBadge = document.getElementById('roleBadge');
+        const roleName = document.getElementById('roleName');
+        const ROLE_LABELS = {
+            employee: { name: 'Сотрудник', badge: 'Личный кабинет сотрудника' },
+            accountant: { name: 'Бухгалтер', badge: 'Рабочее место бухгалтерии' }
+        };
 
         document.getElementById('fillDemo').addEventListener('click', fillDemoData);
         document.getElementById('loadEmployeeRequests').addEventListener('click', loadEmployeeRequests);
         document.getElementById('reloadQueue').addEventListener('click', loadAccountingQueue);
+        statusFilter.addEventListener('change', loadAccountingQueue);
+        queueSearch.addEventListener('input', debounce(loadAccountingQueue, 300));
         certificateTypeSelect.addEventListener('change', toggleCustomField);
         requestForm.addEventListener('submit', submitRequest);
 
+        document.querySelectorAll('.role-option').forEach(button => {
+            button.addEventListener('click', () => applyRole(button.dataset.role));
+        });
+        document.getElementById('changeRole').addEventListener('click', () => {
+            roleOverlay.classList.remove('hidden');
+        });
+
         init();
+        restoreRole();
+
+        function restoreRole() {
+            const saved = localStorage.getItem('role');
+            if (saved === 'employee' || saved === 'accountant') {
+                applyRole(saved);
+            } else {
+                roleOverlay.classList.remove('hidden');
+            }
+        }
+
+        function applyRole(role) {
+            if (!ROLE_LABELS[role]) {
+                return;
+            }
+            localStorage.setItem('role', role);
+            roleName.textContent = ROLE_LABELS[role].name;
+            roleBadge.textContent = ROLE_LABELS[role].badge;
+            document.querySelectorAll('[data-role-view]').forEach(panel => {
+                panel.style.display = panel.dataset.roleView === role ? 'block' : 'none';
+            });
+            roleOverlay.classList.add('hidden');
+        }
 
         async function init() {
             await Promise.all([loadCertificateTypes(), loadAccountingQueue()]);
@@ -651,7 +853,14 @@
 
         async function loadAccountingQueue() {
             hideNotice(queueNotice);
-            const suffix = statusFilter.value ? `?status=${encodeURIComponent(statusFilter.value)}` : '';
+            const params = new URLSearchParams();
+            if (statusFilter.value) {
+                params.set('status', statusFilter.value);
+            }
+            if (queueSearch.value.trim()) {
+                params.set('search', queueSearch.value.trim());
+            }
+            const suffix = params.toString() ? `?${params}` : '';
             const response = await fetch(`/api/accounting/requests/${suffix}`);
             const data = await parseJson(response);
 
@@ -662,6 +871,14 @@
 
             renderRequests(accountingQueue, data, true);
             updateStats(data);
+        }
+
+        function debounce(fn, delay) {
+            let timer;
+            return (...args) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn(...args), delay);
+            };
         }
 
         function renderRequests(container, items, allowStatusChange) {
@@ -703,48 +920,53 @@
         }
 
         function renderStatusEditor(item) {
+            const transitions = {
+                Created: [
+                    { status: 'InProgress', label: 'Взять в работу', cls: 'button-progress' },
+                    { status: 'Rejected', label: 'Отклонить', cls: 'button-reject' }
+                ],
+                InProgress: [
+                    { status: 'Completed', label: 'Готово', cls: 'button-done' },
+                    { status: 'Rejected', label: 'Отклонить', cls: 'button-reject' }
+                ],
+                Completed: [],
+                Rejected: []
+            };
+
+            const available = transitions[item.статус] || [];
+
+            if (!available.length) {
+                return `<div class="status-editor"><span class="status-final">Заявка в финальном статусе — изменения недоступны.</span></div>`;
+            }
+
+            const buttons = available.map(action => `
+                <button class="${action.cls} button-sm" data-action="change-status"
+                        data-id="${item.id}" data-status="${action.status}" type="button">${action.label}</button>
+            `).join('');
+
             return `
                 <div class="status-editor">
-                    <div class="field-row">
-                        <label>
-                            Новый статус
-                            <select data-role="status" data-id="${item.id}">
-                                <option value="Created" ${item.статус === 'Created' ? 'selected' : ''}>Новая</option>
-                                <option value="InProgress" ${item.статус === 'InProgress' ? 'selected' : ''}>В работе</option>
-                                <option value="Completed" ${item.статус === 'Completed' ? 'selected' : ''}>Готова</option>
-                                <option value="Rejected" ${item.статус === 'Rejected' ? 'selected' : ''}>Отклонена</option>
-                            </select>
-                        </label>
-                        <label>
-                            Кто изменил
-                            <input data-role="changedBy" data-id="${item.id}" placeholder="buh-01">
-                        </label>
-                    </div>
-                    <label>
-                        Комментарий
-                        <input data-role="comment" data-id="${item.id}" placeholder="Например, подготовка начата">
-                    </label>
-                    <div class="actions">
-                        <button class="button-primary" data-action="change-status" data-id="${item.id}" type="button">Сохранить статус</button>
-                    </div>
+                    <input class="comment-input" data-role="comment" data-id="${item.id}" placeholder="Комментарий (необязательно)">
+                    <div class="actions">${buttons}</div>
                 </div>
             `;
         }
 
         async function handleStatusChange(event) {
-            const id = event.currentTarget.dataset.id;
-            const status = document.querySelector(`[data-role="status"][data-id="${id}"]`).value;
-            const changedBy = document.querySelector(`[data-role="changedBy"][data-id="${id}"]`).value.trim();
+            const button = event.currentTarget;
+            const id = button.dataset.id;
+            const status = button.dataset.status;
             const comment = document.querySelector(`[data-role="comment"][data-id="${id}"]`).value.trim();
 
-            event.currentTarget.disabled = true;
+            const editor = button.closest('.status-editor');
+            editor.querySelectorAll('button').forEach(b => b.disabled = true);
 
             const response = await fetch(`/api/accounting/requests/${id}/status`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     статус: status,
-                    ктоИзменил: changedBy,
+                    ктоИзменил: roleActor(),
                     комментарий: comment || null
                 })
             });
@@ -753,12 +975,16 @@
 
             if (!response.ok) {
                 showNotice(queueNotice, extractError(data), 'error');
-                event.currentTarget.disabled = false;
+                editor.querySelectorAll('button').forEach(b => b.disabled = false);
                 return;
             }
 
-            showNotice(queueNotice, `Статус заявки ${id} обновлён.`, 'success');
+            showNotice(queueNotice, `Статус обновлён: ${translateStatus(status)}.`, 'success');
             await Promise.all([loadAccountingQueue(), loadEmployeeRequests()]);
+        }
+
+        function roleActor() {
+            return localStorage.getItem('role') === 'accountant' ? 'Бухгалтерия' : 'Сотрудник';
         }
 
         function updateStats(items) {

@@ -32,4 +32,4 @@ C:\Users\User\source\repos\Test\Test.ApiService\obj\Debug\net10.0\Test.ApiServic
 C:\Users\User\source\repos\Test\Test.ApiService\obj\Debug\net10.0\Test.ApiService.genruntimeconfig.cache
 C:\Users\User\source\repos\Test\Test.ApiService\obj\Debug\net10.0\ref\Test.ApiService.dll
 C:\Users\User\source\repos\Test\Test.ApiService\bin\Debug\net10.0\Test.ApiService.staticwebassets.runtime.json
-C:\Users\User\source\repos\Test\Test.ApiService\obj\Debug\net10.0\compressed\yd6msjmqt8-{0}-x60zzogmqg-x60zzogmqg.gz
+C:\Users\User\source\repos\Test\Test.ApiService\obj\Debug\net10.0\compressed\yd6msjmqt8-{0}-hvmc8iph5g-hvmc8iph5g.gz

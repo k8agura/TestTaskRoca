@@ -96,24 +96,27 @@ employeeGroup.MapGet("/employee/{employeeNumber}", (string employeeNumber, IRequ
 
 var accountingGroup = app.MapGroup("/api/accounting/requests");
 
-accountingGroup.MapGet("/", (IRequestRepository repository, string? status) =>
+accountingGroup.MapGet("/", (IRequestRepository repository, string? status, string? search) =>
 {
-    RequestStatus? parsedStatus = null;
+    var statuses = new List<RequestStatus>();
 
     if (!string.IsNullOrWhiteSpace(status))
     {
-        if (!Enum.TryParse<RequestStatus>(status, true, out var parsed))
+        foreach (var token in status.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
-            return Results.ValidationProblem(new Dictionary<string, string[]>
+            if (!Enum.TryParse<RequestStatus>(token, true, out var parsed))
             {
-                [nameof(status)] = ["Неизвестный статус."]
-            });
-        }
+                return Results.ValidationProblem(new Dictionary<string, string[]>
+                {
+                    [nameof(status)] = [$"Неизвестный статус: {token}."]
+                });
+            }
 
-        parsedStatus = parsed;
+            statuses.Add(parsed);
+        }
     }
 
-    var items = repository.GetQueue(parsedStatus)
+    var items = repository.GetQueue(statuses, search)
         .Select(CertificateRequestResponse.FromEntity)
         .ToArray();
 
@@ -136,6 +139,18 @@ accountingGroup.MapPatch("/{id:guid}/status", (
     if (item is null)
     {
         return Results.NotFound();
+    }
+
+    if (!item.CanTransitionTo(request.Status))
+    {
+        var allowed = CertificateRequest.AllowedTransitions(item.Status);
+        var allowedText = allowed.Count > 0
+            ? string.Join(", ", allowed.Select(TranslateStatus))
+            : "статус уже финальный";
+        return Results.Problem(
+            title: "Недопустимый переход статуса",
+            detail: $"Из статуса «{TranslateStatus(item.Status)}» нельзя перейти в «{TranslateStatus(request.Status)}». Доступно: {allowedText}.",
+            statusCode: StatusCodes.Status422UnprocessableEntity);
     }
 
     item.UpdateStatus(request.Status, request.ChangedBy.Trim(), request.Comment?.Trim(), timeProvider.GetUtcNow());
@@ -189,6 +204,15 @@ static Dictionary<string, string[]> ValidateStatusUpdate(UpdateStatusDto request
 
     return errors;
 }
+
+static string TranslateStatus(RequestStatus status) => status switch
+{
+    RequestStatus.Created => "Новая",
+    RequestStatus.InProgress => "В работе",
+    RequestStatus.Completed => "Готова",
+    RequestStatus.Rejected => "Отклонена",
+    _ => status.ToString()
+};
 
 enum CertificateType
 {
@@ -266,6 +290,16 @@ sealed class CertificateRequest
         UpdatedAt = now;
         _history.Add(new StatusHistoryEntry(status, now, changedBy, comment));
     }
+
+    public bool CanTransitionTo(RequestStatus target) =>
+        target != Status && AllowedTransitions(Status).Contains(target);
+
+    public static IReadOnlyCollection<RequestStatus> AllowedTransitions(RequestStatus status) => status switch
+    {
+        RequestStatus.Created => [RequestStatus.InProgress, RequestStatus.Rejected],
+        RequestStatus.InProgress => [RequestStatus.Completed, RequestStatus.Rejected],
+        _ => []
+    };
 }
 
 sealed record StatusHistoryEntry(RequestStatus Status, DateTimeOffset ChangedAt, string ChangedBy, string? Comment);
@@ -337,7 +371,7 @@ interface IRequestRepository
     void Add(CertificateRequest item);
     CertificateRequest? GetById(Guid id);
     IReadOnlyCollection<CertificateRequest> GetByEmployee(string employeeNumber);
-    IReadOnlyCollection<CertificateRequest> GetQueue(RequestStatus? status);
+    IReadOnlyCollection<CertificateRequest> GetQueue(IReadOnlyCollection<RequestStatus> statuses, string? search);
     CertificateRequest? FindDuplicate(string employeeNumber, CertificateType certificateType, int copyCount, string reason);
     void Update(CertificateRequest item);
 }
@@ -356,12 +390,21 @@ sealed class InMemoryRequestRepository : IRequestRepository
             .OrderByDescending(item => item.CreatedAt)
             .ToArray();
 
-    public IReadOnlyCollection<CertificateRequest> GetQueue(RequestStatus? status)
+    public IReadOnlyCollection<CertificateRequest> GetQueue(IReadOnlyCollection<RequestStatus> statuses, string? search)
     {
         var query = _storage.Values.AsEnumerable();
-        if (status.HasValue)
+
+        if (statuses.Count > 0)
         {
-            query = query.Where(item => item.Status == status.Value);
+            query = query.Where(item => statuses.Contains(item.Status));
+        }
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            query = query.Where(item =>
+                item.EmployeeNumber.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                item.EmployeeName.Contains(term, StringComparison.OrdinalIgnoreCase));
         }
 
         return query
