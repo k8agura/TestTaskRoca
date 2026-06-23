@@ -63,7 +63,5 @@ dotnet run --project Test.ApiService --launch-profile https
   "названиеПроизвольнойСправки": null
 }
 ```
-
-## Про остальные проекты
-
-`Test.AppHost`, `Test.Web`, `Test.ServiceDefaults` — заготовки .NET Aspire, сейчас не задействованы. Для работы сервиса достаточно `Test.ApiService`.
+## Ссылка на видео
+https://drive.google.com/file/d/1hIHtSuSBxbqC7nmdd2KMGJDuBUR-72EK/view?usp=sharing
